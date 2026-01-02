@@ -7,7 +7,16 @@ import FieldItem from './components/FieldItem';
 import { getSmartSuggestions } from './services/geminiService';
 
 const App: React.FC = () => {
-  // Campos iniciales actualizados: GS (Grado y Sección) y Tutor
+  // Plantilla estándar para la app AsistenciaPalmista
+  const PALMISTA_TEMPLATE: QRField[] = [
+    { id: '1', key: 'nombre', value: '' },
+    { id: '2', key: 'id', value: '' },
+    { id: '3', key: 'GS', value: '' },
+    { id: '4', key: 'tutor', value: '' },
+    { id: '5', key: 'contacto', value: '' }
+  ];
+
+  // Campos iniciales con datos de ejemplo
   const [fields, setFields] = useState<QRField[]>([
     { id: '1', key: 'nombre', value: 'Usuario Ejemplo' },
     { id: '2', key: 'id', value: '001' },
@@ -15,6 +24,7 @@ const App: React.FC = () => {
     { id: '4', key: 'tutor', value: 'Juan Pérez' },
     { id: '5', key: 'contacto', value: '987654321' }
   ]);
+
   const [loadingSuggestions, setLoadingSuggestions] = useState(false);
   const [explanation, setExplanation] = useState<string | null>(null);
   const qrRef = useRef<HTMLDivElement>(null);
@@ -36,6 +46,18 @@ const App: React.FC = () => {
     setFields(fields.map(f => f.id === id ? { ...f, key, value } : f));
   };
 
+  // Función para limpiar campos para un nuevo ingreso manteniendo la estructura
+  const handleClearAll = () => {
+    // Generamos nuevos IDs para asegurar que React trate esto como un nuevo inicio si es necesario,
+    // pero mantenemos las llaves requeridas para "nuevo ingreso"
+    const clearedFields = PALMISTA_TEMPLATE.map(f => ({
+      ...f,
+      id: Math.random().toString(36).substr(2, 9)
+    }));
+    setFields(clearedFields);
+    setExplanation(null);
+  };
+
   const normalizeKeys = () => {
     const normalized = fields.map(f => ({
       ...f,
@@ -49,6 +71,7 @@ const App: React.FC = () => {
     fields.forEach(f => {
       if (f.key.trim()) dataObj[f.key.trim()] = f.value.trim();
     });
+    // Si no hay datos, retornamos un objeto vacío legible
     return JSON.stringify(dataObj);
   };
 
@@ -124,8 +147,11 @@ const App: React.FC = () => {
                 <LayoutGrid size={20} className="text-blue-600" />
                 Datos del Código QR
               </h2>
-              <button onClick={() => setFields([])} className="text-xs font-bold text-red-400 hover:text-red-600 transition-colors uppercase tracking-widest">
-                Borrar Todo
+              <button 
+                onClick={handleClearAll} 
+                className="text-xs font-black text-red-500 hover:text-red-700 hover:bg-red-50 px-3 py-1 rounded-lg transition-all uppercase tracking-widest border border-transparent hover:border-red-100"
+              >
+                BORRAR TODO
               </button>
             </div>
 
@@ -134,7 +160,7 @@ const App: React.FC = () => {
                 <FieldItem key={field.id} field={field} onUpdate={updateField} onRemove={removeField} />
               ))}
               <button onClick={addField} className="w-full py-4 border-2 border-dashed border-slate-200 rounded-xl text-slate-400 hover:border-blue-400 hover:text-blue-600 hover:bg-blue-50/30 transition-all flex items-center justify-center gap-2 font-bold text-sm">
-                <Plus size={18} /> AGREGAR CAMPO
+                <Plus size={18} /> AGREGAR CAMPO EXTRA
               </button>
             </div>
           </div>
@@ -155,7 +181,7 @@ const App: React.FC = () => {
               <div className="relative z-10 flex flex-col items-center">
                 <div className="w-full flex justify-between items-start mb-6">
                   <div className="w-20 h-20 bg-blue-700 rounded-2xl flex items-center justify-center text-white text-4xl font-bold shadow-lg shadow-blue-200">
-                    {getVal('nombre').charAt(0).toUpperCase()}
+                    {getVal('nombre') !== '---' && getVal('nombre').trim() !== '' ? getVal('nombre').charAt(0).toUpperCase() : '?'}
                   </div>
                   <div className="flex flex-col items-end gap-1">
                     <div className="bg-blue-50 text-blue-700 px-3 py-1 rounded-full text-[10px] font-black tracking-tighter">
@@ -169,7 +195,7 @@ const App: React.FC = () => {
 
                 <div className="w-full mb-8">
                   <h3 className="text-2xl font-black text-slate-800 leading-tight">
-                    {getVal('nombre')}
+                    {getVal('nombre') !== '---' && getVal('nombre').trim() !== '' ? getVal('nombre') : 'Nuevo Estudiante'}
                   </h3>
                   <div className="h-1 w-12 bg-blue-600 mt-2 rounded-full opacity-20"></div>
                 </div>
@@ -208,10 +234,10 @@ const App: React.FC = () => {
 
             <div className="bg-blue-50 border border-blue-100 rounded-2xl p-5">
               <h4 className="text-xs font-black text-blue-800 uppercase tracking-widest mb-2 flex items-center gap-2">
-                <Info size={14} /> Guía de Campos
+                <Info size={14} /> Modo Nuevo Ingreso
               </h4>
               <p className="text-xs text-blue-700 leading-relaxed font-medium">
-                Se ha configurado el campo <b>GS</b> como un valor único (ej. "5G") para simplificar la integración con <b>AsistenciaPalmista</b>.
+                Al usar <b>BORRAR TODO</b>, se mantienen las claves necesarias para la app pero se limpian los valores, permitiéndote generar un código QR nuevo al instante conforme escribas.
               </p>
             </div>
           </div>
