@@ -1,0 +1,5 @@
+{
+  "name": "Palmista QR Assistant",
+  "description": "Un generador inteligente de códigos QR diseñado específicamente para sistemas de asistencia como AsistenciaPalmista. Permite deducir campos necesarios mediante IA y generar códigos QR personalizados.",
+  "requestFramePermissions": []
+}
