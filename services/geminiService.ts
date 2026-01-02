@@ -7,13 +7,20 @@ export const getSmartSuggestions = async (appName: string): Promise<SuggestionRe
   
   const response = await ai.models.generateContent({
     model: "gemini-3-flash-preview",
-    contents: `Analiza el nombre de la aplicación "${appName}" y sugiere una estructura de datos JSON común que este tipo de aplicación de asistencia podría usar en sus códigos QR. 
-    Proporciona campos típicos como identificación de usuario, nombre, fecha, o tokens de seguridad.
+    contents: `Actúa como un experto en sistemas de control escolar para la app "${appName}".
+    Necesito generar un JSON para un código QR que contenga exactamente esta estructura de claves:
+    1. nombre (Nombre completo del alumno)
+    2. id (DNI o número de identificación)
+    3. GS (Grado y Sección combinados, ejemplo: "5G")
+    4. tutor (Nombre del tutor legal)
+    5. contacto (Teléfono de contacto)
     
-    Responde estrictamente en formato JSON con la siguiente estructura:
+    Proporciona valores de ejemplo realistas para un estudiante.
+    
+    Responde estrictamente en formato JSON:
     {
-      "fields": [{"key": "nombre_del_campo", "value": "ejemplo_valor", "description": "para que sirve"}],
-      "explanation": "breve explicacion en español"
+      "fields": [{"key": "string", "value": "string", "description": "string"}],
+      "explanation": "explicación de por qué la clave GS combinada es eficiente para esta aplicación"
     }`,
     config: {
       responseMimeType: "application/json",
@@ -42,7 +49,6 @@ export const getSmartSuggestions = async (appName: string): Promise<SuggestionRe
   try {
     return JSON.parse(response.text || '{}');
   } catch (error) {
-    console.error("Error parsing Gemini response", error);
-    throw new Error("No se pudo obtener una sugerencia válida.");
+    throw new Error("Error en la sugerencia de IA");
   }
 };
